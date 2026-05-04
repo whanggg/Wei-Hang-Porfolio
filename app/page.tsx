@@ -200,7 +200,13 @@ const globalStyles = `
 `;
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-function SectionLabel({ tag, title, sub }) {
+type SectionLabelProps = {
+  tag: string;
+  title: string;
+  sub?: string;
+};
+
+function SectionLabel({ tag, title, sub }: SectionLabelProps) {
   const [ref, inView] = useInView();
   return (
     <div ref={ref} className={`anim-slide-left${inView ? " visible" : ""}`} style={{ marginBottom: 56 }}>
