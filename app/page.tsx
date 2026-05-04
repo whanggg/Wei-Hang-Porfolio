@@ -201,14 +201,42 @@ const globalStyles = `
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 // @ts-ignore
-function SectionLabel({ tag, title, sub }) {
+type SectionLabelProps = {
+  tag: string;
+  title: string;
+  sub?: string;
+};
+
+function SectionLabel({ tag, title, sub }: SectionLabelProps) {
   const [ref, inView] = useInView();
+
   return (
-    <div ref={ref} className={`anim-slide-left${inView ? " visible" : ""}`} style={{ marginBottom: 56 }}>
+    <div
+      ref={ref}
+      className={`anim-slide-left${inView ? " visible" : ""}`}
+      style={{ marginBottom: 56 }}
+    >
       <div className="glow-line" />
       <span className="label-teal">{tag}</span>
-      <h2 style={{ fontFamily:"var(--font-head)", fontWeight:800, fontSize:"clamp(1.8rem,4vw,2.6rem)", color:"var(--text-hi)", lineHeight:1.2, marginBottom:10 }}>{title}</h2>
-      {sub && <p style={{ color:"var(--text-mid)", maxWidth:500, fontSize:".95rem" }}>{sub}</p>}
+
+      <h2
+        style={{
+          fontFamily: "var(--font-head)",
+          fontWeight: 800,
+          fontSize: "clamp(1.8rem,4vw,2.6rem)",
+          color: "var(--text-hi)",
+          lineHeight: 1.2,
+          marginBottom: 10,
+        }}
+      >
+        {title}
+      </h2>
+
+      {sub && (
+        <p style={{ color: "var(--text-mid)", maxWidth: 500, fontSize: ".95rem" }}>
+          {sub}
+        </p>
+      )}
     </div>
   );
 }
