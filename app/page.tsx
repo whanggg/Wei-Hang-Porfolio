@@ -3,19 +3,30 @@
 import { useState, useEffect, useRef } from "react";
 
 // ── ANIMATION HOOK ────────────────────────────────────────────────────────────
-function useInView(options = {}) {
-  const ref = useRef(null);
+function useInView<T extends HTMLElement = HTMLDivElement>(
+  options: IntersectionObserverInit = {}
+): [React.RefObject<T | null>, boolean] {
+  const ref = useRef<T | null>(null);
   const [inView, setInView] = useState(false);
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect(); } },
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          obs.disconnect();
+        }
+      },
       { threshold: 0.12, ...options }
     );
+
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
+
   return [ref, inView];
 }
 
@@ -200,7 +211,6 @@ const globalStyles = `
 `;
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-// @ts-ignore
 type SectionLabelProps = {
   tag: string;
   title: string;
@@ -241,8 +251,9 @@ function SectionLabel({ tag, title, sub }: SectionLabelProps) {
   );
 }
 
-function scrollTo(id) { document.getElementById(id)?.scrollIntoView({ behavior:"smooth" }); }
-
+function scrollTo(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+}
 // ── NAV ───────────────────────────────────────────────────────────────────────
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -261,7 +272,7 @@ function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const go = (id) => { setMobileOpen(false); scrollTo(id); };
+  const go = (id: string) => { setMobileOpen(false); scrollTo(id); };
 
   return (
     <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:100, background:scrolled?"rgba(11,17,32,.94)":"transparent", backdropFilter:scrolled?"blur(16px)":"none", borderBottom:scrolled?"1px solid var(--border-sub)":"1px solid transparent", transition:"background .35s, border-color .35s" }}>
@@ -297,7 +308,7 @@ function Nav() {
 function Home() {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => { const t = setTimeout(() => setLoaded(true), 100); return () => clearTimeout(t); }, []);
-  const a = (d) => ({ opacity:loaded?1:0, transform:loaded?"translateY(0)":"translateY(28px)", transition:`opacity .7s ease ${d}s, transform .7s ease ${d}s` });
+  const a = (d: number) => ({ opacity:loaded?1:0, transform:loaded?"translateY(0)":"translateY(28px)", transition:`opacity .7s ease ${d}s, transform .7s ease ${d}s` });
 
   return (
     <section id="home" className="grid-bg" style={{ minHeight:"100vh", display:"flex", alignItems:"center", paddingTop:64, position:"relative", overflow:"hidden" }}>
@@ -415,8 +426,23 @@ function About() {
   );
 }
 
-// ── PROJECTS — GitHub button only ─────────────────────────────────────────────
-function ProjectCard({ project, delay }) {
+// ── PROJECTS — GitHub button only 
+type Project = {
+  id: number;
+  title: string;
+  description: string;
+  tags: string[];
+  github: string;
+  icon: string;
+  accent: string;
+};
+
+type ProjectCardProps = {
+  project: Project;
+  delay: number;
+};
+
+function ProjectCard({ project, delay }: ProjectCardProps) {
   const [ref, inView] = useInView();
   const [hover, setHover] = useState(false);
   return (
@@ -460,8 +486,20 @@ function Projects() {
   );
 }
 
-// ── SKILLS — grouped card layout, no level bars ───────────────────────────────
-function SkillGroupCard({ group, delay }) {
+// ── SKILLS — grouped card layout, no level bars
+// type ProjectCardProps = {
+type SkillGroup = {
+  label: string;
+  icon: string;
+  color: string;
+  items: string[];
+};
+type SkillGroupCardProps = {
+  group: SkillGroup;
+  delay: number;
+};
+
+function SkillGroupCard({ group, delay }: SkillGroupCardProps) {
   const [ref, inView] = useInView();
   return (
     <div ref={ref} className={`skill-group-card anim-fade-up${inView?" visible":""}`} style={{ transitionDelay:`${delay}s` }}>
@@ -497,9 +535,15 @@ function Skills() {
 }
 
 // ── CONTACT CHANNEL POPUP ─────────────────────────────────────────────────────
-function ChannelPopup({ onClose }) {
+type ChannelPopupProps = {
+  onClose: () => void;
+};
+
+function ChannelPopup({ onClose }: ChannelPopupProps) {
   useEffect(() => {
-    const fn = e => { if (e.key === "Escape") onClose(); };
+    const fn = (e: KeyboardEvent) => {
+  if (e.key === "Escape") onClose();
+};
     document.addEventListener("keydown", fn);
     return () => document.removeEventListener("keydown", fn);
   }, [onClose]);
